@@ -1,0 +1,20 @@
+/* Author: George Aziz
+ * Date Last Modified: 22/08/2021 */
+
+plugins {
+    // Apply the java-library plugin to add support for Java Library
+    id 'java-library'
+    id 'org.openjfx.javafxplugin' version '0.0.10'
+}
+
+sourceCompatibility = 11
+
+javafx {
+    modules = [ 'javafx.controls' ]
+}
+
+repositories {
+    // Use jcenter for resolving dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    mavenCentral()
+}

@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.10'
+    id 'com.intershop.gradle.javacc' version '4.0.1'
+}
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //Loads plugins to be able to be discovered by application
+    implementation project(':date_plugin')
+    implementation project(':find_plugin')
+    //Loads API as it is needed for api implementation
+    implementation project(':api')
+    implementation 'org.python:jython-standalone:2.7.1'
+}
+
+javafx {
+    modules = [ 'javafx.controls' ]
+}
+
+application {
+    mainClass = 'COMP3003.Assignment02.TextEditorApp'
+}
+
+javacc {
+    configs {
+        createmyparser {
+            inputFile = file('src/main/jj/KeymapParser.jj')
+            packageName = 'COMP3003.Assignment02'
+        }
+    }
+}

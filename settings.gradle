@@ -1,0 +1,2 @@
+include 'core', 'api', 'date_plugin', 'find_plugin'
+rootProject.name = 'TextEditor'

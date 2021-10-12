@@ -1,0 +1,102 @@
+/***********************************************************
+ * Author: George Aziz
+ * Purpose: KeyMapParser .jj file to parse key map bindings
+ * Date Last Modified: 08/10/2021
+ **********************************************************/
+options {
+    UNICODE_INPUT = true;
+    IGNORE_CASE = true;
+}
+
+PARSER_BEGIN(KeymapParser)
+package COMP3003.Assignment02;
+
+import java.io.*;
+import java.nio.charset.*;
+import java.util.*;
+
+public class KeymapParser
+{
+    private static ApplicationAPI api;
+    //Main Entry point for the parser
+    public static void parse(ApplicationAPI tools) throws ParseException, FileNotFoundException, UnsupportedEncodingException
+    {
+        api = tools;
+        Reader isr = new InputStreamReader(new FileInputStream("keymap"), "UTF-8");
+        Reader reader = new BufferedReader(isr);
+        KeymapParser parser = new KeymapParser(reader);
+        parser.Input();
+    }
+}
+PARSER_END(KeymapParser)
+
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+}
+
+TOKEN :
+{
+  < MAINKEY: "ctrl" | "alt" | "shift" > |
+  < LETTER: ["a"-"z"] > |
+  < INSERT: "insert" > |
+  < DELETE: "delete" > |
+  < TEXT : "\"" (~["\""])* "\"" > |
+  < STARTLINE: "at start of line" > |
+  < CARET: "at caret" >
+}
+
+/** Top level production. */
+void Input() :
+{
+    Token key = null;
+    Token letter = null;
+    Token changeStr = null;
+
+    String theLetter;
+    boolean isAdd;
+    boolean isStartLine;
+    HashSet<String> keySet = new HashSet(); //Using set to ignore duplicates and count as 1 key
+}
+{
+    (
+        key = <MAINKEY> { keySet.add(key.image.toLowerCase()); }
+        "+"
+
+        ( key = <MAINKEY> "+" { keySet.add(key.image.toLowerCase()); } )*
+
+        letter = <LETTER> "=" { theLetter = letter.image; }
+        (
+            <INSERT> { isAdd = true; }
+            |
+            <DELETE> { isAdd = false; }
+        )
+
+        changeStr = <TEXT>
+        (
+            <STARTLINE> { isStartLine = true; }
+            |
+            <CARET> { isStartLine = false; }
+        )
+        ["\n"]
+        {
+            //Formats string back to original form like 'ctrl+i' after validation to be passed for keybinding
+            String passString = "";
+            for(String curStr : keySet) { passString += curStr + "+"; }
+            //Formats string to remove double quotes
+            String newStr = changeStr.image;
+            newStr = newStr.substring(1, newStr.length()-1);
+
+            System.out.println(passString + theLetter);
+            api.registerKeyMapping(passString + theLetter, newStr, isAdd, isStartLine);
+
+            //Resetting values for next iteration
+            keySet = new HashSet();
+
+        }
+    )*
+    <EOF>
+}
