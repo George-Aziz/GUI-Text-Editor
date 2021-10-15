@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 /*******************************************************************************************************
  * Author: George Aziz
  * Purpose: Performs the reading/parsing and writing of the files containing general text for text area
- * Date Last Modified: 10/10/2021
+ * Date Last Modified: 15/10/2021
+ * NOTE: This class has been provided by the unit and adjusted to fit the needs of the current program
  ******************************************************************************************************/
 public class FileIO
 {
@@ -41,17 +42,13 @@ public class FileIO
     }
 
     // Writes a text area text to a given file in a specified encoding UTF-8, UTF-16 or UTF-32
-    public void save(File file, Charset encoding, TextArea textArea) throws FileLoadingException
+    public void save(File file, Charset encoding, TextArea textArea) throws IOException
     {
         try (FileOutputStream fos = new FileOutputStream(file);
              OutputStreamWriter osw = new OutputStreamWriter(fos, encoding);
              BufferedWriter writer = new BufferedWriter(osw)) {
 
             writer.write(Normalizer.normalize(textArea.getText(), Normalizer.Form.NFKC));
-        }
-        catch (IOException ex)
-        {
-            throw new FileLoadingException(ex.getMessage(), ex);
         }
     }
 }

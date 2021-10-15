@@ -15,7 +15,7 @@ import java.util.*;
 /************************************************************
  * Author: George Aziz
  * Purpose: Manages dialog box for adding new plugins/scripts
- * Date Last Modified: 10/10/2021
+ * Date Last Modified: 15/10/2021
  ************************************************************/
 public class AddUI
 {
@@ -54,7 +54,7 @@ public class AddUI
             dialog.setTitle(bundle.getString("plugin_dialog_title"));
             dialog.setHeaderText(bundle.getString("plugin_header_text"));
             list = FXCollections.observableArrayList(loadedPlugins);
-            addBtn.setOnAction(event -> addPlugin(textField.getText(), list));
+            addBtn.setOnAction(event -> addPlugin(textField.getText()));
             toolBar.getItems().addAll(textLabel, textField, addBtn);
         } else { //Script
             addBtn.setText(bundle.getString("add_script_btn"));
@@ -75,7 +75,7 @@ public class AddUI
     }
 
     //Internal method to add a plugin
-    private void addPlugin(String pluginName, ObservableList<String> list)
+    private void addPlugin(String pluginName)
     {
         if(pluginName == null || pluginName.isEmpty()) //Cant have empty plugin name
         {
@@ -116,14 +116,14 @@ public class AddUI
     {
         FileChooser fileDialog = new FileChooser();
         fileDialog.setTitle(bundle.getString("script_file_chooser_title"));
-        File f = fileDialog.showOpenDialog(stage);
-        if(f != null)
+        File f = fileDialog.showOpenDialog(stage); //User chooses file
+        if(f != null) //Only tries to add script if a file has been chosen
         {
             try
             {
                 FileIO fileIO = new FileIO();
                 ScriptHandler scriptHandler = new ScriptHandler();
-                String pythonScript = fileIO.load(f, StandardCharsets.UTF_8);
+                String pythonScript = fileIO.load(f, StandardCharsets.UTF_8); //Reads script in UTF-8 encoding
                 scriptHandler.runScript(api, pythonScript);
                 dialog.close();
             }

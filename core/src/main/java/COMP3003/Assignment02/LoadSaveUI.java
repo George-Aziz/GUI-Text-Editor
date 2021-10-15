@@ -7,6 +7,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ResourceBundle;
 
@@ -14,8 +15,8 @@ import java.util.ResourceBundle;
 /*********************************************************************************************************
  * Author: George Aziz
  * Purpose: Controls those parts of the user interface relating to loading/saving text area content files
- * Date Last Modified: 08/10/2021
- * NOTE: This class has been provided by the unit to be used for this practical
+ * Date Last Modified: 15/10/2021
+ * NOTE: This class has been provided by the unit and adjusted to fit the needs of the current program
  ********************************************************************************************************/
 public class LoadSaveUI
 {
@@ -55,7 +56,7 @@ public class LoadSaveUI
             content.getChildren().setAll(new Label(bundle.getString("encoding_label")), encodingComboBox);
             
             encodingComboBox.getItems().setAll("UTF-8", "UTF-16", "UTF-32");
-            encodingComboBox.setValue("UTF-8");
+            encodingComboBox.setValue("UTF-8"); //By default the encoding will be UTF-8 unless changed
         }        
         return encodingDialog.showAndWait().orElse(null);
     }
@@ -106,7 +107,7 @@ public class LoadSaveUI
                     Charset selectedEncoding = Charset.forName(encoding);
                     fileIO.save(f, selectedEncoding, textArea);
                 }
-                catch(FileLoadingException ex)
+                catch(IOException ex)
                 {
                     Alert error = new Alert(
                             Alert.AlertType.ERROR,
