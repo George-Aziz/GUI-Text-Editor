@@ -1,2 +1,2 @@
-include 'core', 'api', 'date_plugin', 'find_plugin'
+include 'core', 'api', 'date_plugin', 'find_plugin', 'date_plugin_jni:c_library', 'date_plugin_jni:java_app'
 rootProject.name = 'TextEditor'

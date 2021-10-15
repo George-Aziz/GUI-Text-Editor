@@ -11,15 +11,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    //Loads plugins to be able to be discovered by application
-    implementation project(':date_plugin')
-    implementation project(':find_plugin')
-    //Loads API as it is needed for api implementation
-    implementation project(':api')
-    implementation 'org.python:jython-standalone:2.7.1'
-}
-
 javafx {
     modules = [ 'javafx.controls' ]
 }
@@ -36,3 +27,44 @@ javacc {
         }
     }
 }
+
+
+// We need Gradle to finish configuring the other sub-project first, because we need to
+// refer to two of its tasks below.
+evaluationDependsOn ':date_plugin_jni:c_library'
+
+def libTasks = project(':date_plugin_jni:c_library').tasks
+def debugLibTask = libTasks.matching{ it.name.startsWith('linkDebug') }.first()
+def releaseLibTask = libTasks.matching{ it.name.startsWith('linkRelease') }.first()
+
+dependencies {
+    //Loads plugins to be able to be discovered by application
+    implementation project(':date_plugin')
+    implementation project(':find_plugin')
+    //Loads API as it is needed for api implementation
+    implementation project(':api')
+    implementation project(':date_plugin_jni:java_app')
+    implementation 'org.python:jython-standalone:2.7.1'
+    runtimeOnly files(releaseLibTask.linkedFile)
+}
+
+run {
+
+    dependsOn debugLibTask
+    systemProperty 'java.library.path', debugLibTask.linkedFile.get().asFile.parentFile
+    // Allow standard input
+    standardInput = System.in
+}
+
+def modifyTemplate(gen, optText) {
+    gen.template = resources.text.fromString(gen.template.asString().replace(
+        'DEFAULT_JVM_OPTS=${defaultJvmOpts}',
+        'DEFAULT_JVM_OPTS=' + optText + '${defaultJvmOpts}'))
+}
+
+startScripts {
+
+    modifyTemplate(unixStartScriptGenerator, '\'"-Djava.library.path=\'\\$APP_HOME\'/lib" \'')
+    modifyTemplate(windowsStartScriptGenerator, '-Djava.library.path=%APP_HOME%\\\\lib ')
+}
+

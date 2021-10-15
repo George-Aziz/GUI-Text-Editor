@@ -1,0 +1,35 @@
+plugins {
+    // We're actually using C++, but we can essentially pretend that it's C.
+    // The cpp-library plugin compiles our C/C++ code and generates a library file.
+    id 'cpp-library'
+}
+
+tasks.withType(CppCompile).configureEach {
+    // Tell the C++ compiler about the JNI. There are a series of C/C++ header files that come 
+    // with the JDK. To find the JDK, we consult the 'JAVA_HOME' environment variable.
+    
+    // The actual 'jni.h' file lives in the 'include' directory, but there are also a series of 
+    // other, platform-specific header files in 'include/linux' and/or 'include/win32'. Your actual
+    // JDK may only have one of these platform-specific directories.
+    includes System.properties['java.home'] + "/include"
+    includes System.properties['java.home'] + "/include/darwin"
+    includes System.properties['java.home'] + "/include/linux"
+    includes System.properties['java.home'] + "/include/win32"
+
+}
+
+library {
+    // Define the library's name. (The file produced will be 'lib<baseName>.so' on Linux or 
+    // '<baseName>.dll' on Windows.)
+    baseName = 'c_library'
+
+    // Create a 'shared' library only (not a 'static' library).
+    linkage = [Linkage.SHARED]
+    
+    // What is the target platform?
+    targetMachines = [
+        machines.linux.x86_64,
+        machines.windows.x86_64,
+        machines.macOS.x86_64
+    ]
+}
